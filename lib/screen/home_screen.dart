@@ -18,11 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
     zoom: 15,
   );
 
-  @override
-  void initState() {
-    super.initState();
-    checkPermission();
-  }
+  late final GoogleMapController controller;
 
   checkPermission() async {
     final isLocationEnabled = await Geolocator.isLocationServiceEnabled();
@@ -35,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       checkedPermission = await Geolocator.requestPermission();
     }
 
-    if (checkedPermission != LocationPermission.always ||
+    if (checkedPermission != LocationPermission.always &&
         checkedPermission != LocationPermission.whileInUse) {
       throw Exception('위치 권한을 허가 해주세요');
     }
@@ -44,13 +40,72 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-              child: GoogleMap(
-            initialCameraPosition: initialPosition,
-          )),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          '오늘도 출근',
+          style: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: myLocationPressed,
+            icon: Icon(
+              Icons.my_location,
+            ),
+            color: Colors.blue,
+          ),
         ],
+      ),
+      body: FutureBuilder(
+        future: checkPermission(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
+          return Column(
+            children: [
+              Expanded(
+                child: GoogleMap(
+                  initialCameraPosition: initialPosition,
+                  mapType: MapType.normal,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  onMapCreated: (GoogleMapController controller) {
+                    this.controller = controller;
+                  },
+                  markers: {
+                    Marker(
+                      markerId: MarkerId('123'),
+                      position: LatLng(
+                        37.5214,
+                        126.9246,
+                      ),
+                    ),
+                  },
+
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void myLocationPressed() async {
+    final location = await Geolocator.getCurrentPosition();
+    controller.animateCamera(
+      CameraUpdate.newLatLng(
+        LatLng(
+          location.latitude,
+          location.longitude,
+        ),
       ),
     );
   }
