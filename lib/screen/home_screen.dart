@@ -70,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Column(
             children: [
               Expanded(
+                flex: 2,
                 child: GoogleMap(
                   initialCameraPosition: initialPosition,
                   mapType: MapType.normal,
@@ -88,9 +89,44 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   },
-
+                  circles: {
+                    Circle(
+                      circleId: CircleId('inDistance'),
+                      center: LatLng(
+                        37.5214,
+                        126.9246,
+                      ),
+                      radius: 100,
+                      fillColor: Colors.blue.withAlpha(128),
+                      strokeColor: Colors.blue,
+                      strokeWidth: 1,
+                    ),
+                  },
                 ),
               ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.timelapse_outlined,
+                      color: Colors.blue,
+                    ),
+                    SizedBox(
+                      height: 16.0,
+                    ),
+                    OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                      ),
+                      child: Text(
+                        '출근하기',
+                      ),
+                    ),
+                  ],
+                ),
+              )
             ],
           );
         },
